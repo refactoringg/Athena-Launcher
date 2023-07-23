@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <link rel="stylesheet" href="styles/index.css">
+  <title>Athena Launcher</title>
+
+  <script>
+    const electron = require('electron');
+
+    function closeApp() {
+      electron.ipcRenderer.send("close", "");
+    }
+  </script>
+</head>
+
+<body>
+  <div class="pseudo-body">
+    <div class='header' onLoad="loadSettings()">
+      <h1 class='title'>A T H E N A</h1>
+    </div>
+
+    <button class="home-tab transform_tabs">Home</button>
+    <button class="settings-tab transform_tabs">Settings</button>
+
+    <div class="close-button">
+      <img draggable="false" src="assets/close.png">
+    </div>
+
+    <div class="home-page">
+      <div class='blog_package'>
+        <span class='blog_title'></span>
+        <img class='blog_author_skin'></img>
+        <span class='blog_author'></span>
+        <span class='blog_content'></span>
+      </div>
+
+      <div class='launchArea'>
+        <button id="sexybtn" class='sexy_btn'>
+          <div class="large" id="large">LAUNCH</div>
+          <div class="small" id="small">1.8.9</div>
+          <div class="progress" id="progress"></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-page">
+      <div class="settingsArea">
+        <h2 class="settings_title">Memory Allocation</h2>
+        <p id="settings-memory-value">2GB</p>
+        <input type="range" min="1024" max="8192" value="1024" class="slider" id="settings-memory">
+      </div>
+
+      <div class="settingsArea_1">
+        <h2 class="cjre">Custom JRE</h2>
+        <input type="text" id="jre-loc">
+      </div>
+
+
+
+    </div>
+  </div>
+
+  <script src="scripts/load.js"></script>
+  <script>
+    // SETTINGS TAB //
+    document.querySelector('.settings-tab').addEventListener('click', function () {
+      document.querySelector('.settings-page').style.visibility = 'visible';
+      document.querySelector('.home-page').style.visibility = 'hidden';
+    });
+
+    // HOME TAB //
+    document.querySelector('.home-tab').addEventListener('click', function () {
+      document.querySelector('.home-page').style.visibility = 'visible';
+      document.querySelector('.settings-page').style.visibility = 'hidden';
+    });
+
+    log.log("[AC] Initialize")
+
+    slider = document.getElementById("settings-memory");
+    label = document.getElementById("settings-memory-value");
+    s = document.getElementById("jre-loc");
+
+    s.oninput = function() {
+      let ramdata = { "ram": "" + slider.value + "", "jrepath": s.value };
+
+      let data = JSON.stringify(ramdata);
+      fs.writeFileSync(getAppDataPath('.athena/settings.json'), data);
+
+      log.log("Saving JRE path: " + data)
+    }
+
+
+    slider.oninput = function () {
+      label.innerHTML = (parseFloat(this.value) / 1024).toFixed(1) + " GB";
+
+      let ramdata = { "ram": "" + slider.value + "" };
+
+      let data = JSON.stringify(ramdata);
+      fs.writeFileSync(getAppdata('.athena/settings.json'), data);
+    }
+
+    if (!fs.existsSync(getAppdata(".athena/"))) {
+      fs.mkdir(getAppdata(".athena/"), cb => {
+        log.log("[AC] Created athena directory");
+      });
+    }
+
+    if (fs.existsSync(getAppdata('.athena/settings.json'))) {
+      slider = document.getElementById("settings-memory");
+      label = document.getElementById("settings-memory-value");
+      s = document.getElementById("jre-loc");
+
+      let ramdata = fs.readFileSync(getAppdata('.athena/settings.json'));
+      var ram = JSON.parse(ramdata);
+      slider.value = ram.ram;
+
+      label.innerHTML = (parseFloat(slider.value) / 1024).toFixed(1) + " GB";
+    }
+
+    document.querySelector('.close-button').addEventListener('click', function () {
+      window.close();
+    });
+
+    log.log("[AC] setting up HTML")
+
+
+
+  </script>
+
+</body>
+
+</html>
